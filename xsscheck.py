@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 import sys
 import argparse
 from splinter import Browser
@@ -20,7 +21,7 @@ def main(arguments):
     print(
         "=" * 50 +
         Colors['YELLOW'] +
-        "\nWelcome to the world of Xss!\n" +
+        "\nWelcome to the world of XSS!\n" +
         Colors['END'] +
         "=" * 50
     )
@@ -30,12 +31,23 @@ def main(arguments):
     )
 
 
+# add quotes to the values in tag properties, like src="x"
+def quotesAdd(ori_line):
+    strong_line = re.sub(
+        r'=([^"]*?)([ |>])',
+        lambda m: '="' + m.group(1) + '"' + m.group(2),
+        ori_line
+    )
+    return strong_line
+
+
 def test_xss(link, payload_file):
     # Load Payloads from file
     payloads = []
     with open(payload_file) as payload:
         for item in payload:
-            item = item.strip()
+            item = quotesAdd(item.strip())
+            print(item)
             payloads.append(item)
     for line in payloads:
         print(inject_payload(link, line))
